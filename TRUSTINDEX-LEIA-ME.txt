@@ -1,0 +1,11 @@
+INTEGRAÇÃO TRUSTINDEX CONFIGURADA
+
+O código exclusivo do widget foi inserido no index.html antes do footer.
+
+Widget configurado:
+https://cdn.trustindex.io/loader.js?faac90074679849b6e66179df6a
+
+A exibição e a atualização das avaliações seguem as configurações e os limites do plano utilizado na Trustindex.
+
+Place ID informado para a empresa:
+ChIJ5TPzeylFpJQR-DgV_YOwcss
