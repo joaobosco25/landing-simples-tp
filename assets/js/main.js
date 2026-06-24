@@ -1,29 +1,29 @@
 (() => {
   "use strict";
 
-  const header = document.querySelector(".site-header");
-  const year = document.querySelector("#current-year");
-  const revealItems = document.querySelectorAll(".reveal");
+  const cabecalho = document.querySelector(".cabecalho");
+  const camposAno = document.querySelectorAll(".ano-atual");
+  const elementosAnimados = document.querySelectorAll(".aparece-ao-rolar");
 
-  if (year) {
-    year.textContent = new Date().getFullYear();
+  camposAno.forEach((campo) => {
+    campo.textContent = new Date().getFullYear();
+  });
+
+  function atualizarCabecalho() {
+    if (!cabecalho) return;
+    cabecalho.classList.toggle("cabecalho-rolagem", window.scrollY > 16);
   }
 
-  function updateHeader() {
-    if (!header) return;
-    header.classList.toggle("is-scrolled", window.scrollY > 16);
-  }
-
-  updateHeader();
-  window.addEventListener("scroll", updateHeader, { passive: true });
+  atualizarCabecalho();
+  window.addEventListener("scroll", atualizarCabecalho, { passive: true });
 
   if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries, currentObserver) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-visible");
-          currentObserver.unobserve(entry.target);
+    const observador = new IntersectionObserver(
+      (entradas, observadorAtual) => {
+        entradas.forEach((entrada) => {
+          if (!entrada.isIntersecting) return;
+          entrada.target.classList.add("esta-visivel");
+          observadorAtual.unobserve(entrada.target);
         });
       },
       {
@@ -32,61 +32,60 @@
       }
     );
 
-    revealItems.forEach((item) => observer.observe(item));
+    elementosAnimados.forEach((elemento) => observador.observe(elemento));
   } else {
-    revealItems.forEach((item) => item.classList.add("is-visible"));
+    elementosAnimados.forEach((elemento) => elemento.classList.add("esta-visivel"));
   }
 
-  // Mantém parâmetros UTM e acrescenta a origem na mensagem do WhatsApp.
-  const params = new URLSearchParams(window.location.search);
-  const utmData = [];
+  // Mantém os parâmetros UTM e registra a origem na mensagem do WhatsApp.
+  const parametros = new URLSearchParams(window.location.search);
+  const dadosUtm = [];
 
-  params.forEach((value, key) => {
-    if (key.toLowerCase().startsWith("utm_")) {
-      utmData.push(`${key}: ${value}`);
+  parametros.forEach((valor, chave) => {
+    if (chave.toLowerCase().startsWith("utm_")) {
+      dadosUtm.push(`${chave}: ${valor}`);
     }
   });
 
-  if (utmData.length) {
+  if (dadosUtm.length) {
     document.querySelectorAll("[data-whatsapp]").forEach((link) => {
       try {
         const url = new URL(link.href);
-        const originalMessage = url.searchParams.get("text") || "";
+        const mensagemOriginal = url.searchParams.get("text") || "";
         url.searchParams.set(
           "text",
-          `${originalMessage}\n\nOrigem da campanha: ${utmData.join(" | ")}`
+          `${mensagemOriginal}\n\nOrigem da campanha: ${dadosUtm.join(" | ")}`
         );
         link.href = url.toString();
-      } catch (error) {
-        console.warn("Não foi possível preservar os parâmetros UTM.", error);
+      } catch (erro) {
+        console.warn("Não foi possível preservar os parâmetros UTM.", erro);
       }
     });
   }
 
-  // Eventos básicos para Google Analytics, GTM ou Meta Pixel.
-  document.querySelectorAll("[data-track]").forEach((element) => {
-    element.addEventListener("click", () => {
-      const label = element.dataset.track;
+  // Dispara eventos básicos para Google Analytics, GTM ou Meta Pixel.
+  document.querySelectorAll("[data-track]").forEach((elemento) => {
+    elemento.addEventListener("click", () => {
+      const identificador = elemento.dataset.track;
 
       if (typeof window.gtag === "function") {
         window.gtag("event", "contact_click", {
           event_category: "conversion",
-          event_label: label,
+          event_label: identificador,
         });
       }
 
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "contact_click",
-        contact_type: label,
+        contact_type: identificador,
       });
 
       if (typeof window.fbq === "function") {
         window.fbq("track", "Contact", {
-          content_name: label,
+          content_name: identificador,
         });
       }
     });
   });
-
 })();
